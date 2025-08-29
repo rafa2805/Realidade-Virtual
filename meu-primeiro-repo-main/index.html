@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cenário DS - Sala e Robot</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+  </head>
+  <body>
+     <a-scene video-handler>
+      <!-- Fundo 360º com a imagem da sala -->
+      <a-sky src="Robots/cena2.png" rotation="0 -90 0"></a-sky>
+
+<!-- Robô LOGÍSTICA -->
+<a-image class="clickable" data-video="#video-robo1" src="Robots/LOGÍSTICA .png"
+         position="-6.5 2.0 5.0" rotation="10 160 0" width="12.0" height="3.3" look-at="#camera"></a-image>
+
+<!-- Robô DS sobre a mesa -->
+<a-image class="clickable" data-video="#video-robo2" src="Robots/Robô Logo Escola.png"
+         position="0.9 1.1 -3.5" width="3" height="2" look-at="#camera"></a-image>
+<a-video id="video-robo2" src="#src-robo2" position="0.9 1.1 -3.5" width="3" height="1.5" visible="false"></a-video>
+<a-circle position="0.9 1.1 -3.49" radius="0.2" color="#FFD700" class="clickable" data-video="#video-robo2"
+          animation="property: material.opacity; from: 1; to: 0.1; dur: 1000; dir: alternate; loop: true"></a-circle>
+<video id="src-robo2" crossorigin="anonymous" loop><source src="videos/log_ds.mp4" type="video/mp4"></video>
+
+<!-- Robô com celular -->
+<a-image class="clickable" data-video="#video-robo3" src="Robots/Robô com celular.png"
+         position="3.5 0.25 -2.0" rotation="-10 -60 0" width="1.6" height="1.6" look-at="#camera"></a-image>
+
+<!-- Robô lendo sobre a bancada -->
+<a-image class="clickable" data-video="#video-robo4" id="convite-video" src="Robots/Robô lendo sobre a bancada .png"
+         position="25.2 -2.3 -0.7" rotation="0 -30 0" width="10.2" height="10.4" look-at="#camera"></a-image>
+
+
+<!-- Robô gamer -->
+<a-entity position="0 -0.5 0">
+  <a-curvedimage src="Robots/Robô gamer .png" height="4" radius="6" theta-length="20" theta-start="42.5" rotation="0 0 0" look-at="#camera"></a-curvedimage>
+</a-entity>
+
+<!-- Robô LOG Modal -->
+<a-image class="clickable" data-video="#video-robo5" src="Robots/modal.png"
+         position="-73 2.9 6.0" rotation="10 110 0" width="30" height="20" look-at="#camera"></a-image>
+
+<!-- Robô LOG Processos -->
+<a-image class="clickable" data-video="#video-robo6" src="Robots/Robô processo.png"
+         position="-3.8 -0.7 6.0" rotation="10 160 0" width="4.5" height="3.5" look-at="#camera"></a-image>
+
+<!-- Robô LOG Processos (mantido) -->
+<a-image class="clickable" data-video="#video-robo6"
+         src="Robots/Robô processo.png"
+         position="-3.8 -0.7 6.0" rotation="10 160 0"
+         width="4.5" height="3.5" look-at="#camera"></a-image>
+
+<!-- fonte do vídeo -->
+<video id="src-proc" crossorigin="anonymous" preload="auto" playsinline webkit-playsinline loop>
+  <source src="videos/log.mp4" type="video/mp4">
+</video>
+
+
+
+<!-- Robô LOG Paraquedas -->
+<a-image class="clickable" data-video="#video-robo7" src="Robots/Robô Paraquedas.png"
+         position="-0.6 3.2 5.0" rotation="10 160 0" width="4.5" height="2.5" look-at="#camera"></a-image>
+
+
+<!-- Robô LOG sobre teclado -->
+<a-image class="clickable" data-video="#video-robo8" src="Robots/Robô Log .png"
+         position="-0.5 0.3 5.0" rotation="10 160 0" width="4.5" height="4" look-at="#camera"></a-image>
+
+
+<!-- Robô LOG com Logo Escola -->
+<a-image class="clickable" data-video="#video-robo9" src="Robots/Robô Logo Log 2.png"
+         position="-3.9 1.4 -1.3" rotation="10 70 0" width="3.2" height="3" look-at="#camera"></a-image>
+
+
+  <!-- Narração com voz do Robô principal -->
+      <a-sound src="#audio" autoplay="true" position="1.2 2.0 -3"></a-sound>
+
+      <audio id="audio" crossorigin="anonymous">
+        <source src="narracao_robot_desenvolvimento_sistemas_resumida.mp3" type="audio/mp3">
+      </audio>
+
+      <!-- Câmera com cursor para interação VR -->
+      <a-camera look-controls>
+        <a-cursor fuse="true" fuse-timeout="1500" color="white"></a-cursor>
+      </a-camera>
+
+ <!-- Script dinâmico para todos os robôs -->
+      <script>
+  AFRAME.registerComponent('video-handler', {
+    init: function () {
+      const sceneEl = this.el;
+      const robos = sceneEl.querySelectorAll('.clickable');
+      let activeVideo = null;
+      let gazeTimer = null;
+
+      robos.forEach(robo => {
+        const videoSelector = robo.getAttribute('data-video');
+        const videoEl = sceneEl.querySelector(videoSelector);
+
+        if (!videoEl) return;
+
+        
+
+        // Olhar fixo por 2 segundos
+        robo.addEventListener('mouseenter', () => {
+          gazeTimer = setTimeout(() => {
+            showVideo(videoEl);
+          }, 2000); // 2 segundos
+        });
+
+        robo.addEventListener('mouseleave', () => {
+          clearTimeout(gazeTimer);
+        });
+
+        // Clique com mouse (para testes)
+        robo.addEventListener('click', () => {
+          showVideo(videoEl);
+        });
+      });
+
+      // Clique fora = fecha vídeo ativo
+      sceneEl.addEventListener('click', function () {
+        if (activeVideo) {
+          activeVideo.setAttribute('visible', 'false');
+          const domVideo = document.querySelector(activeVideo.getAttribute('src'));
+          if (domVideo && domVideo.pause) domVideo.pause();
+          activeVideo = null;
+        }
+      });
+
+      function showVideo(videoEl) {
+        if (activeVideo && activeVideo !== videoEl) {
+          activeVideo.setAttribute('visible', 'false');
+          const domPrevious = document.querySelector(activeVideo.getAttribute('src'));
+          if (domPrevious && domPrevious.pause) domPrevious.pause();
+        }
+
+        const domCurrent = document.querySelector(videoEl.getAttribute('src'));
+        if (domCurrent && domCurrent.play) domCurrent.play();
+
+        videoEl.setAttribute('visible', 'true');
+        activeVideo = videoEl;
+      }
+    }
+  });
+</script>
+
+
+    </a-scene>
+  </body>
+</html>
